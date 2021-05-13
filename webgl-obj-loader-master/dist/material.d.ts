@@ -1,11 +1,9 @@
-export type Vec3 = [number, number, number];
-
+export declare type Vec3 = [number, number, number];
 export interface UVW {
     u: number;
     v: number;
     w: number;
 }
-
 export interface TextureMapData {
     colorCorrection: boolean;
     horizontalBlending: boolean;
@@ -26,101 +24,59 @@ export interface TextureMapData {
     reflectionType?: string;
     texture?: HTMLImageElement;
 }
-
 /**
  * The Material class.
  */
-export class Material {
+export declare class Material {
+    name: string;
     /**
      * Constructor
      * @param {String} name the unique name of the material
      */
-    // The values for the following attibutes
-    // are an array of R, G, B normalized values.
-    // Ka - Ambient Reflectivity
-    ambient: Vec3 = [0, 0, 0];
-    // Kd - Defuse Reflectivity
-    diffuse: Vec3 = [0, 0, 0];
-    // Ks
-    specular: Vec3 = [0, 0, 0];
-    // Ke
-    emissive: Vec3 = [0, 0, 0];
-    // Tf
-    transmissionFilter: Vec3 = [0, 0, 0];
-    // d
-    dissolve: number = 0;
-    // valid range is between 0 and 1000
-    specularExponent: number = 0;
-    // either d or Tr; valid values are normalized
-    transparency: number = 0;
-    // illum - the enum of the illumination model to use
-    illumination: number = 0;
-    // Ni - Set to "normal" (air).
-    refractionIndex: number = 1;
-    // sharpness
-    sharpness: number = 0;
-    // map_Kd
-    mapDiffuse: TextureMapData = emptyTextureOptions();
-    // map_Ka
-    mapAmbient: TextureMapData = emptyTextureOptions();
-    // map_Ks
-    mapSpecular: TextureMapData = emptyTextureOptions();
-    // map_Ns
-    mapSpecularExponent: TextureMapData = emptyTextureOptions();
-    // map_d
-    mapDissolve: TextureMapData = emptyTextureOptions();
-    // map_aat
-    antiAliasing: boolean = false;
-    // map_bump or bump
-    mapBump: TextureMapData = emptyTextureOptions();
-    // disp
-    mapDisplacement: TextureMapData = emptyTextureOptions();
-    // decal
-    mapDecal: TextureMapData = emptyTextureOptions();
-    // map_Ke
-    mapEmissive: TextureMapData = emptyTextureOptions();
-    // refl - when the reflection type is a cube, there will be multiple refl
-    //        statements for each side of the cube. If it's a spherical
-    //        reflection, there should only ever be one.
-    mapReflections: TextureMapData[] = [];
-    constructor(public name: string) {}
+    ambient: Vec3;
+    diffuse: Vec3;
+    specular: Vec3;
+    emissive: Vec3;
+    transmissionFilter: Vec3;
+    dissolve: number;
+    specularExponent: number;
+    transparency: number;
+    illumination: number;
+    refractionIndex: number;
+    sharpness: number;
+    mapDiffuse: TextureMapData;
+    mapAmbient: TextureMapData;
+    mapSpecular: TextureMapData;
+    mapSpecularExponent: TextureMapData;
+    mapDissolve: TextureMapData;
+    antiAliasing: boolean;
+    mapBump: TextureMapData;
+    mapDisplacement: TextureMapData;
+    mapDecal: TextureMapData;
+    mapEmissive: TextureMapData;
+    mapReflections: TextureMapData[];
+    constructor(name: string);
 }
-
-const SENTINEL_MATERIAL = new Material("sentinel");
-
 /**
  * https://en.wikipedia.org/wiki/Wavefront_.obj_file
  * http://paulbourke.net/dataformats/mtl/
  */
-export class MaterialLibrary {
+export declare class MaterialLibrary {
+    data: string;
     /**
      * Constructs the Material Parser
      * @param mtlData the MTL file contents
      */
-    public currentMaterial: Material = SENTINEL_MATERIAL;
-    public materials: { [k: string]: Material } = {};
-
-    constructor(public data: string) {
-        this.parse();
-    }
-
-    /* eslint-disable camelcase */
-    /* the function names here disobey camelCase conventions
-     to make parsing/routing easier. see the parse function
-     documentation for more information. */
-
+    currentMaterial: Material;
+    materials: {
+        [k: string]: Material;
+    };
+    constructor(data: string);
     /**
      * Creates a new Material object and adds to the registry.
      * @param tokens the tokens associated with the directive
      */
-    parse_newmtl(tokens: string[]) {
-        const name = tokens[0];
-        // console.info('Parsing new Material:', name);
-
-        this.currentMaterial = new Material(name);
-        this.materials[name] = this.currentMaterial;
-    }
-
+    parse_newmtl(tokens: string[]): void;
     /**
      * See the documenation for parse_Ka below for a better understanding.
      *
@@ -131,36 +87,7 @@ export class MaterialLibrary {
      * @return {*} a 3 element array containing the R, G, and B values
      * of the color.
      */
-    parseColor(tokens: string[]): Vec3 {
-        if (tokens[0] == "spectral") {
-            throw new Error(
-                "The MTL parser does not support spectral curve files. You will " +
-                    "need to convert the MTL colors to either RGB or CIEXYZ.",
-            );
-        }
-
-        if (tokens[0] == "xyz") {
-            throw new Error(
-                "The MTL parser does not currently support XYZ colors. Either convert the " +
-                    "XYZ values to RGB or create an issue to add support for XYZ",
-            );
-        }
-
-        // from my understanding of the spec, RGB values at this point
-        // will either be 3 floats or exactly 1 float, so that's the check
-        // that i'm going to perform here
-        if (tokens.length == 3) {
-            const [x, y, z] = tokens;
-            return [parseFloat(x), parseFloat(y), parseFloat(z)];
-        }
-
-        // Since tokens at this point has a length of 3, we're going to assume
-        // it's exactly 1, skipping the check for 2.
-        const value = parseFloat(tokens[0]);
-        // in this case, all values are equivalent
-        return [value, value, value];
-    }
-
+    parseColor(tokens: string[]): Vec3;
     /**
      * Parse the ambient reflectivity
      *
@@ -192,10 +119,7 @@ export class MaterialLibrary {
      *
      * @param tokens the tokens associated with the directive
      */
-    parse_Ka(tokens: string[]) {
-        this.currentMaterial.ambient = this.parseColor(tokens);
-    }
-
+    parse_Ka(tokens: string[]): void;
     /**
      * Diffuse Reflectivity
      *
@@ -204,10 +128,7 @@ export class MaterialLibrary {
      *
      * @param tokens the tokens associated with the directive
      */
-    parse_Kd(tokens: string[]) {
-        this.currentMaterial.diffuse = this.parseColor(tokens);
-    }
-
+    parse_Kd(tokens: string[]): void;
     /**
      * Spectral Reflectivity
      *
@@ -216,10 +137,7 @@ export class MaterialLibrary {
      *
      * @param tokens the tokens associated with the directive
      */
-    parse_Ks(tokens: string[]) {
-        this.currentMaterial.specular = this.parseColor(tokens);
-    }
-
+    parse_Ks(tokens: string[]): void;
     /**
      * Emissive
      *
@@ -227,10 +145,7 @@ export class MaterialLibrary {
      *
      * @param tokens the tokens associated with the directive
      */
-    parse_Ke(tokens: string[]) {
-        this.currentMaterial.emissive = this.parseColor(tokens);
-    }
-
+    parse_Ke(tokens: string[]): void;
     /**
      * Transmission Filter
      *
@@ -244,10 +159,7 @@ export class MaterialLibrary {
      *
      * @param tokens the tokens associated with the directive
      */
-    parse_Tf(tokens: string[]) {
-        this.currentMaterial.transmissionFilter = this.parseColor(tokens);
-    }
-
+    parse_Tf(tokens: string[]): void;
     /**
      * Specifies the dissolve for the current material.
      *
@@ -277,12 +189,7 @@ export class MaterialLibrary {
      *
      * @param tokens the tokens associated with the directive
      */
-    parse_d(tokens: string[]) {
-        // this ignores the -halo option as I can't find any documentation on what
-        // it's supposed to be.
-        this.currentMaterial.dissolve = parseFloat(tokens.pop() || "0");
-    }
-
+    parse_d(tokens: string[]): void;
     /**
      * The "illum" statement specifies the illumination model to use in the
      * material. Illumination models are mathematical equations that represent
@@ -306,10 +213,7 @@ export class MaterialLibrary {
      *
      * @param tokens the tokens associated with the directive
      */
-    parse_illum(tokens: string[]) {
-        this.currentMaterial.illumination = parseInt(tokens[0]);
-    }
-
+    parse_illum(tokens: string[]): void;
     /**
      * Optical Density (AKA Index of Refraction)
      *
@@ -326,10 +230,7 @@ export class MaterialLibrary {
      *
      * @param tokens the tokens associated with the directive
      */
-    parse_Ni(tokens: string[]) {
-        this.currentMaterial.refractionIndex = parseFloat(tokens[0]);
-    }
-
+    parse_Ni(tokens: string[]): void;
     /**
      * Specifies the specular exponent for the current material. This defines the
      * focus of the specular highlight.
@@ -344,10 +245,7 @@ export class MaterialLibrary {
      *
      * @param tokens the tokens associated with the directive
      */
-    parse_Ns(tokens: string[]) {
-        this.currentMaterial.specularExponent = parseInt(tokens[0]);
-    }
-
+    parse_Ns(tokens: string[]): void;
     /**
      * Specifies the sharpness of the reflections from the local reflection map.
      *
@@ -367,61 +265,42 @@ export class MaterialLibrary {
      *
      * @param tokens the tokens associated with the directive
      */
-    parse_sharpness(tokens: string[]) {
-        this.currentMaterial.sharpness = parseInt(tokens[0]);
-    }
-
+    parse_sharpness(tokens: string[]): void;
     /**
      * Parses the -cc flag and updates the options object with the values.
      *
      * @param values the values passed to the -cc flag
      * @param options the Object of all image options
      */
-    parse_cc(values: string[], options: TextureMapData) {
-        options.colorCorrection = values[0] == "on";
-    }
-
+    parse_cc(values: string[], options: TextureMapData): void;
     /**
      * Parses the -blendu flag and updates the options object with the values.
      *
      * @param values the values passed to the -blendu flag
      * @param options the Object of all image options
      */
-    parse_blendu(values: string[], options: TextureMapData) {
-        options.horizontalBlending = values[0] == "on";
-    }
-
+    parse_blendu(values: string[], options: TextureMapData): void;
     /**
      * Parses the -blendv flag and updates the options object with the values.
      *
      * @param values the values passed to the -blendv flag
      * @param options the Object of all image options
      */
-    parse_blendv(values: string[], options: TextureMapData) {
-        options.verticalBlending = values[0] == "on";
-    }
-
+    parse_blendv(values: string[], options: TextureMapData): void;
     /**
      * Parses the -boost flag and updates the options object with the values.
      *
      * @param values the values passed to the -boost flag
      * @param options the Object of all image options
      */
-    parse_boost(values: string[], options: TextureMapData) {
-        options.boostMipMapSharpness = parseFloat(values[0]);
-    }
-
+    parse_boost(values: string[], options: TextureMapData): void;
     /**
      * Parses the -mm flag and updates the options object with the values.
      *
      * @param values the values passed to the -mm flag
      * @param options the Object of all image options
      */
-    parse_mm(values: string[], options: TextureMapData) {
-        options.modifyTextureMap.brightness = parseFloat(values[0]);
-        options.modifyTextureMap.contrast = parseFloat(values[1]);
-    }
-
+    parse_mm(values: string[], options: TextureMapData): void;
     /**
      * Parses and sets the -o, -s, and -t  u, v, and w values
      *
@@ -429,273 +308,149 @@ export class MaterialLibrary {
      * @param {Object} option the Object of either the -o, -s, -t option
      * @param {Integer} defaultValue the Object of all image options
      */
-    parse_ost(values: string[], option: UVW, defaultValue: number) {
-        while (values.length < 3) {
-            values.push(defaultValue.toString());
-        }
-
-        option.u = parseFloat(values[0]);
-        option.v = parseFloat(values[1]);
-        option.w = parseFloat(values[2]);
-    }
-
+    parse_ost(values: string[], option: UVW, defaultValue: number): void;
     /**
      * Parses the -o flag and updates the options object with the values.
      *
      * @param values the values passed to the -o flag
      * @param options the Object of all image options
      */
-    parse_o(values: string[], options: TextureMapData) {
-        this.parse_ost(values, options.offset, 0);
-    }
-
+    parse_o(values: string[], options: TextureMapData): void;
     /**
      * Parses the -s flag and updates the options object with the values.
      *
      * @param values the values passed to the -s flag
      * @param options the Object of all image options
      */
-    parse_s(values: string[], options: TextureMapData) {
-        this.parse_ost(values, options.scale, 1);
-    }
-
+    parse_s(values: string[], options: TextureMapData): void;
     /**
      * Parses the -t flag and updates the options object with the values.
      *
      * @param values the values passed to the -t flag
      * @param options the Object of all image options
      */
-    parse_t(values: string[], options: TextureMapData) {
-        this.parse_ost(values, options.turbulence, 0);
-    }
-
+    parse_t(values: string[], options: TextureMapData): void;
     /**
      * Parses the -texres flag and updates the options object with the values.
      *
      * @param values the values passed to the -texres flag
      * @param options the Object of all image options
      */
-    parse_texres(values: string[], options: TextureMapData) {
-        options.textureResolution = parseFloat(values[0]);
-    }
-
+    parse_texres(values: string[], options: TextureMapData): void;
     /**
      * Parses the -clamp flag and updates the options object with the values.
      *
      * @param values the values passed to the -clamp flag
      * @param options the Object of all image options
      */
-    parse_clamp(values: string[], options: TextureMapData) {
-        options.clamp = values[0] == "on";
-    }
-
+    parse_clamp(values: string[], options: TextureMapData): void;
     /**
      * Parses the -bm flag and updates the options object with the values.
      *
      * @param values the values passed to the -bm flag
      * @param options the Object of all image options
      */
-    parse_bm(values: string[], options: TextureMapData) {
-        options.bumpMultiplier = parseFloat(values[0]);
-    }
-
+    parse_bm(values: string[], options: TextureMapData): void;
     /**
      * Parses the -imfchan flag and updates the options object with the values.
      *
      * @param values the values passed to the -imfchan flag
      * @param options the Object of all image options
      */
-    parse_imfchan(values: string[], options: TextureMapData) {
-        options.imfChan = values[0];
-    }
-
+    parse_imfchan(values: string[], options: TextureMapData): void;
     /**
      * This only exists for relection maps and denotes the type of reflection.
      *
      * @param values the values passed to the -type flag
      * @param options the Object of all image options
      */
-    parse_type(values: string[], options: TextureMapData) {
-        options.reflectionType = values[0];
-    }
-
+    parse_type(values: string[], options: TextureMapData): void;
     /**
      * Parses the texture's options and returns an options object with the info
      *
      * @param tokens all of the option tokens to pass to the texture
      * @return {Object} a complete object of objects to apply to the texture
      */
-    parseOptions(tokens: string[]): TextureMapData {
-        const options = emptyTextureOptions();
-
-        let option;
-        let values;
-        const optionsToValues: { [k: string]: string[] } = {};
-
-        tokens.reverse();
-
-        while (tokens.length) {
-            // token is guaranteed to exists here, hence the explicit "as"
-            const token = tokens.pop() as string;
-
-            if (token.startsWith("-")) {
-                option = token.substr(1);
-                optionsToValues[option] = [];
-            } else if (option) {
-                optionsToValues[option].push(token);
-            }
-        }
-
-        for (option in optionsToValues) {
-            if (!optionsToValues.hasOwnProperty(option)) {
-                continue;
-            }
-            values = optionsToValues[option];
-            const optionMethod = (this as any)[`parse_${option}`];
-            if (optionMethod) {
-                optionMethod.bind(this)(values, options);
-            }
-        }
-
-        return options;
-    }
-
+    parseOptions(tokens: string[]): TextureMapData;
     /**
      * Parses the given texture map line.
      *
      * @param tokens all of the tokens representing the texture
      * @return a complete object of objects to apply to the texture
      */
-    parseMap(tokens: string[]): TextureMapData {
-        // according to wikipedia:
-        // (https://en.wikipedia.org/wiki/Wavefront_.obj_file#Vendor_specific_alterations)
-        // there is at least one vendor that places the filename before the options
-        // rather than after (which is to spec). All options start with a '-'
-        // so if the first token doesn't start with a '-', we're going to assume
-        // it's the name of the map file.
-        let optionsString;
-        let filename = "";
-        if (!tokens[0].startsWith("-")) {
-            [filename, ...optionsString] = tokens;
-        } else {
-            filename = tokens.pop() as string;
-            optionsString = tokens;
-        }
-
-        const options = this.parseOptions(optionsString);
-        options.filename = filename.replace(/\\/g, "/");
-
-        return options;
-    }
-
+    parseMap(tokens: string[]): TextureMapData;
     /**
      * Parses the ambient map.
      *
      * @param tokens list of tokens for the map_Ka direcive
      */
-    parse_map_Ka(tokens: string[]) {
-        this.currentMaterial.mapAmbient = this.parseMap(tokens);
-    }
-
+    parse_map_Ka(tokens: string[]): void;
     /**
      * Parses the diffuse map.
      *
      * @param tokens list of tokens for the map_Kd direcive
      */
-    parse_map_Kd(tokens: string[]) {
-        this.currentMaterial.mapDiffuse = this.parseMap(tokens);
-    }
-
+    parse_map_Kd(tokens: string[]): void;
     /**
      * Parses the specular map.
      *
      * @param tokens list of tokens for the map_Ks direcive
      */
-    parse_map_Ks(tokens: string[]) {
-        this.currentMaterial.mapSpecular = this.parseMap(tokens);
-    }
-
+    parse_map_Ks(tokens: string[]): void;
     /**
      * Parses the emissive map.
      *
      * @param tokens list of tokens for the map_Ke direcive
      */
-    parse_map_Ke(tokens: string[]) {
-        this.currentMaterial.mapEmissive = this.parseMap(tokens);
-    }
-
+    parse_map_Ke(tokens: string[]): void;
     /**
      * Parses the specular exponent map.
      *
      * @param tokens list of tokens for the map_Ns direcive
      */
-    parse_map_Ns(tokens: string[]) {
-        this.currentMaterial.mapSpecularExponent = this.parseMap(tokens);
-    }
-
+    parse_map_Ns(tokens: string[]): void;
     /**
      * Parses the dissolve map.
      *
      * @param tokens list of tokens for the map_d direcive
      */
-    parse_map_d(tokens: string[]) {
-        this.currentMaterial.mapDissolve = this.parseMap(tokens);
-    }
-
+    parse_map_d(tokens: string[]): void;
     /**
      * Parses the anti-aliasing option.
      *
      * @param tokens list of tokens for the map_aat direcive
      */
-    parse_map_aat(tokens: string[]) {
-        this.currentMaterial.antiAliasing = tokens[0] == "on";
-    }
-
+    parse_map_aat(tokens: string[]): void;
     /**
      * Parses the bump map.
      *
      * @param tokens list of tokens for the map_bump direcive
      */
-    parse_map_bump(tokens: string[]) {
-        this.currentMaterial.mapBump = this.parseMap(tokens);
-    }
-
+    parse_map_bump(tokens: string[]): void;
     /**
      * Parses the bump map.
      *
      * @param tokens list of tokens for the bump direcive
      */
-    parse_bump(tokens: string[]) {
-        this.parse_map_bump(tokens);
-    }
-
+    parse_bump(tokens: string[]): void;
     /**
      * Parses the disp map.
      *
      * @param tokens list of tokens for the disp direcive
      */
-    parse_disp(tokens: string[]) {
-        this.currentMaterial.mapDisplacement = this.parseMap(tokens);
-    }
-
+    parse_disp(tokens: string[]): void;
     /**
      * Parses the decal map.
      *
      * @param tokens list of tokens for the map_decal direcive
      */
-    parse_decal(tokens: string[]) {
-        this.currentMaterial.mapDecal = this.parseMap(tokens);
-    }
-
+    parse_decal(tokens: string[]): void;
     /**
      * Parses the refl map.
      *
      * @param tokens list of tokens for the refl direcive
      */
-    parse_refl(tokens: string[]) {
-        this.currentMaterial.mapReflections.push(this.parseMap(tokens));
-    }
-
+    parse_refl(tokens: string[]): void;
     /**
      * Parses the MTL file.
      *
@@ -709,52 +464,5 @@ export class MaterialLibrary {
      * list of tokens and updates the currentMaterial class with
      * the attributes provided.
      */
-    parse() {
-        const lines = this.data.split(/\r?\n/);
-        for (let line of lines) {
-            line = line.trim();
-            if (!line || line.startsWith("#")) {
-                continue;
-            }
-
-            const [directive, ...tokens] = line.split(/\s/);
-
-            const parseMethod = (this as any)[`parse_${directive}`];
-
-            if (!parseMethod) {
-                console.warn(`Don't know how to parse the directive: "${directive}"`);
-                continue;
-            }
-
-            // console.log(`Parsing "${directive}" with tokens: ${tokens}`);
-            parseMethod.bind(this)(tokens);
-        }
-
-        // some cleanup. These don't need to be exposed as public data.
-        delete this.data;
-        this.currentMaterial = SENTINEL_MATERIAL;
-    }
-
-    /* eslint-enable camelcase*/
-}
-
-function emptyTextureOptions(): TextureMapData {
-    return {
-        colorCorrection: false,
-        horizontalBlending: true,
-        verticalBlending: true,
-        boostMipMapSharpness: 0,
-        modifyTextureMap: {
-            brightness: 0,
-            contrast: 1,
-        },
-        offset: { u: 0, v: 0, w: 0 },
-        scale: { u: 1, v: 1, w: 1 },
-        turbulence: { u: 0, v: 0, w: 0 },
-        clamp: false,
-        textureResolution: null,
-        bumpMultiplier: 1,
-        imfChan: null,
-        filename: "",
-    };
+    parse(): void;
 }
